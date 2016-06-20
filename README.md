@@ -21,7 +21,7 @@ Bring [messenger.com](https://messenger.com) to your OS X, Windows or Linux desk
 * System tray icon
 * Special badge icon when new unread messages
 * Auto-launch on OS startup
-* Chrome notifications
+* Native notifications
 * 3 themes: Default, Dark and Mosaic
 * Auto-hide the left sidebar
 * Open links in browser or new window
@@ -60,6 +60,8 @@ Quick install on OS X:
     gulp pack:linux{32|64}:{deb|rpm}
 
 The output is in `./dist`. Take a look in `gulpfile.coffee` for additional tasks.
+
+**TIP**: use the `--toolbar` parameter to quickly build the app with the toolbar on. E.g. `gulp build:win32 --toolbar`.
 
 **TIP**: use `gulp build:win32 --noicon` to quickly build the Windows app without the icon.
 
