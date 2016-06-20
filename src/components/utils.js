@@ -1,5 +1,6 @@
 var URL = require('url');
 var dispatcher = require('./dispatcher');
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 module.exports = {
   /**

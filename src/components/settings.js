@@ -32,30 +32,29 @@ settings.watch = function(name, callback) {
 };
 
 // Save settings every time a change is made and notify watchers
-var settings_proxy = new Proxy(settings, {
-    set: function(target, prop, value) {
-        Reflect.set(target, prop, value);
-
-        db.save('settings', settings, function(err) {
-          if (err) {
-            console.error('Could not save settings', err);
-          }
-        });
-
-        var keyWatchers = watchers[prop];
-
-        // Call all the watcher functions for the changed key
-        if (keyWatchers && keyWatchers.length) {
-          for (var i = 0; i < keyWatchers.length; i++) {
-            try {
-              keyWatchers[i](value);
-            } catch(ex) {
-              console.error(ex);
-              keyWatchers.splice(i--, 1);
-            }
-          }
-        }
+Object.observe(settings, function(changes) {
+  db.save('settings', settings, function(err) {
+    if (err) {
+      console.error('Could not save settings', err);
     }
+  });
+
+  changes.forEach(function(change) {
+    var newValue = change.object[change.name];
+    var keyWatchers = watchers[change.name];
+
+    // Call all the watcher functions for the changed key
+    if (keyWatchers && keyWatchers.length) {
+      for (var i = 0; i < keyWatchers.length; i++) {
+        try {
+          keyWatchers[i](newValue);
+        } catch(ex) {
+          console.error(ex);
+          keyWatchers.splice(i--, 1);
+        }
+      }
+    }
+  });
 });
 
 // Ensure the default values exist
@@ -65,9 +64,10 @@ Object.keys(DEFAULT_SETTINGS).forEach(function(key) {
   }
 });
 
+
 // Cross context settings manipulation.
-settings_proxy.updateKey = function(key, value) {
-	settings_proxy[key] = value;
+settings.updateKey = function(key, value) {
+  //Dumb code because of revert
 }
 
-module.exports = settings_proxy;
+module.exports = settings;
