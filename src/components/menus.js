@@ -304,12 +304,14 @@ module.exports = {
   /**
    * Create a context menu for the window and document.
    */
-  createContextMenu: function(win, window, document, targetElement) {
+  createContextMenu: function(win, document, targetElement) {
     var menu = new gui.Menu();
 
-    if (targetElement.tagName.toLowerCase() == 'input') {
+    if (targetElement.isContentEditable == true) {
       menu.append(new gui.MenuItem({
         label: "Cut",
+        key: "X",
+        modifiers: "ctrl",
         click: function() {
           clipboard.set(targetElement.value);
           targetElement.value = '';
@@ -318,6 +320,8 @@ module.exports = {
 
       menu.append(new gui.MenuItem({
         label: "Copy",
+        key: "C",
+        modifiers: "ctrl",
         click: function() {
           clipboard.set(targetElement.value);
         }
@@ -325,8 +329,19 @@ module.exports = {
 
       menu.append(new gui.MenuItem({
         label: "Paste",
+        key: "V",
+        modifiers: "ctrl",
         click: function() {
           targetElement.value = clipboard.get();
+        }
+      }));
+
+      menu.append(new gui.MenuItem({
+        label: "Select all",
+        key: "A",
+        modifiers: "ctrl",
+        click: function() {
+          targetElement.value.select();
         }
       }));
     } else if (targetElement.tagName.toLowerCase() == 'a') {
@@ -338,7 +353,7 @@ module.exports = {
         }
       }));
     } else {
-      var selection = window.getSelection().toString();
+      var selection = document.getSelection().toString();
       if (selection.length > 0) {
         menu.append(new gui.MenuItem({
           label: "Copy",
@@ -349,10 +364,6 @@ module.exports = {
       }
     }
 
-    this.settingsItems(win, false).forEach(function(item) {
-      menu.append(item);
-    });
-
     return menu;
   },
 
@@ -362,7 +373,7 @@ module.exports = {
   injectContextMenu: function(win, document) {
     document.body.addEventListener('contextmenu', function(event) {
       event.preventDefault();
-	  /*var x = event.x, y = event.y;
+	  var x = event.x, y = event.y;
 	  if(!utils.areSameContext(this, win)) {
 		  // When we are not in the same context
 		  // The window is relative to screen position.
@@ -372,7 +383,11 @@ module.exports = {
 		  x += win.x;
 		  y += win.y;
 	  }
-      this.createContextMenu(win, window, document, event.target).popup(x, y);*/
+      var menu = this.createContextMenu(win, document, event.target)
+
+      if(menu.items.length != 0)
+        menu.popup(x, y);
+
       return false;
     }.bind(this));
   }
